@@ -2,45 +2,51 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>sodiqjonMagazin POS Tizimi</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
+    * { 
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #f5f5f5, #e0f2f1);
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f5f5;
+      padding: 10px;
       margin: 0;
       color: #333;
+      touch-action: manipulation;
     }
     h1 {
       text-align: center;
       color: #2c3e50;
-      margin-bottom: 20px;
-      font-size: 28px;
+      margin: 10px 0;
+      font-size: 22px;
     }
     section {
       background: white;
-      padding: 25px;
-      margin: 20px auto;
-      border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-      max-width: 900px;
+      padding: 15px;
+      margin: 10px auto;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 100%;
     }
     input, button {
       padding: 12px 15px;
       width: 100%;
-      margin: 10px 0;
-      border-radius: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
       border: 1px solid #ddd;
       font-size: 16px;
-      transition: all 0.3s;
+      transition: all 0.2s;
+      -webkit-appearance: none;
     }
     input:focus {
       border-color: #26a69a;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.2);
+      box-shadow: 0 0 0 2px rgba(38, 166, 154, 0.2);
     }
     button {
       background: #26a69a;
@@ -49,22 +55,24 @@
       cursor: pointer;
       border: none;
       font-size: 16px;
+      user-select: none;
     }
-    button:hover {
+    button:active {
       background: #00897b;
-      transform: translateY(-2px);
+      transform: scale(0.98);
     }
     #reader-container {
       position: relative;
-      margin: 25px auto;
-      max-width: 800px;
-      border-radius: 15px;
+      margin: 15px auto;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     #reader {
       width: 100%;
-      height: 400px;
+      height: 300px;
       object-fit: cover;
     }
     #scan-overlay {
@@ -72,10 +80,10 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 280px;
-      height: 280px;
-      border: 4px solid #26a69a;
-      border-radius: 12px;
+      width: 200px;
+      height: 200px;
+      border: 3px solid #26a69a;
+      border-radius: 10px;
       pointer-events: none;
       box-shadow: 0 0 0 10000px rgba(0,0,0,0.5);
       z-index: 10;
@@ -83,58 +91,59 @@
     #barcode-display {
       display: block;
       text-align: center;
-      font-size: 24px;
+      font-size: 20px;
       font-weight: bold;
-      margin: 20px 0;
-      padding: 12px;
+      margin: 15px 0;
+      padding: 10px;
       background: #f8f9fa;
-      border-radius: 10px;
-      border: 2px solid #26a69a;
+      border-radius: 8px;
+      border: 1px solid #26a69a;
       font-family: monospace;
-      min-height: 60px;
-      transition: all 0.3s;
+      min-height: 50px;
+      word-break: break-all;
     }
     .mode-selector {
       display: flex;
       justify-content: center;
-      margin-bottom: 25px;
-      gap: 20px;
+      margin-bottom: 15px;
+      gap: 10px;
       flex-wrap: wrap;
     }
     .mode-selector button {
-      width: 220px;
-      padding: 14px;
-      font-size: 17px;
-      border-radius: 10px;
+      width: 48%;
+      min-width: 140px;
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 8px;
     }
     .mode-selector button.active {
       background: #00796b;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .product-info {
       display: flex;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
-    .product-info input {
-      flex: 1;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
     }
     #product-list {
-      max-height: 400px;
+      max-height: 300px;
       overflow-y: auto;
-      margin-top: 20px;
+      margin-top: 15px;
       border: 1px solid #eee;
-      border-radius: 10px;
+      border-radius: 8px;
       background: #fafafa;
+      -webkit-overflow-scrolling: touch;
     }
     table {
       width: 100%;
-      margin-top: 20px;
+      margin-top: 15px;
       border-collapse: collapse;
       background: white;
+      font-size: 14px;
     }
     th, td {
-      padding: 14px;
+      padding: 10px;
       border: 1px solid #e0e0e0;
       text-align: center;
     }
@@ -150,31 +159,31 @@
       background-color: #e0f2f1;
     }
     #total {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: bold;
       color: #004d40;
-      margin: 20px 0;
+      margin: 15px 0;
       text-align: right;
-      padding: 15px;
+      padding: 12px;
       background: #e0f7fa;
-      border-radius: 10px;
+      border-radius: 8px;
     }
     audio { display: none; }
     .action-btn {
-      padding: 8px 12px;
+      padding: 6px 10px;
       width: auto;
-      margin: 0 5px;
-      font-size: 14px;
-      border-radius: 6px;
+      margin: 0 3px;
+      font-size: 13px;
+      border-radius: 5px;
     }
     .delete-btn {
       background: #e74c3c;
     }
-    .delete-btn:hover {
+    .delete-btn:active {
       background: #c0392b;
     }
     .search-box {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       position: relative;
     }
     .search-box input {
@@ -184,40 +193,44 @@
       background-position: 12px center;
     }
     .status-message {
-      padding: 10px;
-      margin: 10px 0;
+      padding: 8px;
+      margin: 8px 0;
       border-radius: 5px;
       text-align: center;
       font-weight: bold;
+      font-size: 14px;
     }
     .success { background: #d4edda; color: #155724; }
     .error { background: #f8d7da; color: #721c24; }
     .warning { background: #fff3cd; color: #856404; }
     .camera-options {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
     .camera-options button {
-      width: auto;
-      padding: 8px 15px;
-      font-size: 14px;
+      width: calc(50% - 4px);
+      padding: 8px;
+      font-size: 13px;
     }
-    @media (max-width: 768px) {
-      .product-info {
-        flex-direction: column;
-        gap: 10px;
+    .hidden {
+      display: none !important;
+    }
+    /* Print styles */
+    @media print {
+      body * {
+        visibility: hidden;
       }
-      .mode-selector button {
+      #print-section, #print-section * {
+        visibility: visible;
+      }
+      #print-section {
+        position: absolute;
+        left: 0;
+        top: 0;
         width: 100%;
-      }
-      #reader-container {
-        margin: 15px 0;
-      }
-      #scan-overlay {
-        width: 250px;
-        height: 250px;
       }
     }
   </style>
@@ -228,8 +241,8 @@
 
 <!-- Rejim tanlash -->
 <div class="mode-selector">
-  <button id="add-mode-btn" class="active" onclick="setMode('add')">➕ Mahsulot qo'shish</button>
-  <button id="sell-mode-btn" onclick="setMode('sell')">💰 Savdo qilish</button>
+  <button id="add-mode-btn" class="active" onclick="setMode('add')">➕ Qo'shish</button>
+  <button id="sell-mode-btn" onclick="setMode('sell')">💰 Savdo</button>
 </div>
 
 <!-- Asosiy ish maydoni -->
@@ -238,9 +251,10 @@
   
   <!-- Kamera sozlamalari -->
   <div class="camera-options">
-    <button onclick="initScanner()">🔄 Kamera qayta yuklash</button>
-    <button onclick="switchCamera()">🔄 Kamera almashtirish</button>
-    <button onclick="startFileScanner()">📁 Fayldan skanerlash</button>
+    <button onclick="initScanner()">🔄 Kamera</button>
+    <button onclick="switchCamera()">🔄 Almash</button>
+    <button onclick="startFileScanner()">📁 Fayl</button>
+    <button onclick="manualBarcodeEntry()">⌨️ Kod kirish</button>
   </div>
   
   <!-- Katta skaner maydoni -->
@@ -267,7 +281,7 @@
     <div id="product-list">
       <table id="products-table">
         <thead>
-          <tr><th>Kodi</th><th>Nomi</th><th>Narxi</th><th>Harakatlar</th></tr>
+          <tr><th>Kodi</th><th>Nomi</th><th>Narxi</th><th></th></tr>
         </thead>
         <tbody id="products-body"></tbody>
       </table>
@@ -275,7 +289,7 @@
   </div>
   
   <!-- Savdo maydoni -->
-  <div id="sell-fields" style="display: none;">
+  <div id="sell-fields" class="hidden">
     <h3>Savatdagi mahsulotlar:</h3>
     <table>
       <thead>
@@ -284,12 +298,28 @@
       <tbody id="cart-body"></tbody>
     </table>
     <p id="total">Umumiy: 0 so'm</p>
-    <button onclick="generatePDF()">🧾 Chek chiqarish (PDF)</button>
-    <button onclick="clearCart()" style="background: #e74c3c; margin-top: 10px;">🔄 Savatni tozalash</button>
+    <button onclick="printReceipt()">🧾 Chek chiqarish</button>
+    <button onclick="generatePDF()" style="margin-top: 8px;">📄 PDF saqlash</button>
+    <button onclick="clearCart()" style="background: #e74c3c; margin-top: 8px;">🔄 Savatni tozalash</button>
   </div>
 </section>
 
+<!-- Chek chop etish uchun yashirin div -->
+<div id="print-section" class="hidden"></div>
+
 <audio id="beep-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
+
+<!-- Qo'lda kod kiritish uchun modal -->
+<div id="barcode-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; display: flex; justify-content: center; align-items: center;">
+  <div style="background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px;">
+    <h3 style="margin-top: 0;">Shtrix kodni kiriting</h3>
+    <input type="text" id="manual-barcode" placeholder="Shtrix kod raqami" style="width: 100%; padding: 12px; margin-bottom: 15px; font-size: 16px;">
+    <div style="display: flex; gap: 10px;">
+      <button onclick="document.getElementById('barcode-modal').classList.add('hidden')" style="background: #e74c3c; flex: 1;">Bekor qilish</button>
+      <button onclick="submitManualBarcode()" style="flex: 1;">Tasdiqlash</button>
+    </div>
+  </div>
+</div>
 
 <script>
   // O'zgaruvchilar
@@ -313,6 +343,17 @@
     updateProductList();
     updateCart();
     initScanner();
+    
+    // Mahsulot qo'shish maydonlariga fokus
+    document.getElementById('product-name').focus();
+    
+    // Klaviaturadan kod kiritish
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F2' || (e.ctrlKey && e.key === 'k')) {
+        e.preventDefault();
+        manualBarcodeEntry();
+      }
+    });
   });
   
   // Rejimni o'zgartirish
@@ -323,13 +364,14 @@
     
     if (mode === 'add') {
       modeTitle.textContent = 'Mahsulot qo\'shish';
-      addFields.style.display = 'block';
-      sellFields.style.display = 'none';
+      addFields.classList.remove('hidden');
+      sellFields.classList.add('hidden');
       document.getElementById('add-mode-btn').classList.add('active');
+      document.getElementById('product-name').focus();
     } else {
       modeTitle.textContent = 'Savdo qilish';
-      addFields.style.display = 'none';
-      sellFields.style.display = 'block';
+      addFields.classList.add('hidden');
+      sellFields.classList.remove('hidden');
       document.getElementById('sell-mode-btn').classList.add('active');
     }
     
@@ -351,11 +393,11 @@
     }
   }
   
-  // Skanerni ishga tushirish (yaxshilangan versiya)
+  // Skanerni ishga tushirish
   function initScanner() {
     const config = { 
       fps: 10, 
-      qrbox: 250,
+      qrbox: 200,
       rememberLastUsedCamera: true,
       supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
     };
@@ -373,11 +415,11 @@
     }
   }
   
-  // Kamerani ishga tushirish (alohida funksiya)
+  // Kamerani ishga tushirish
   function startCamera(config) {
     Html5Qrcode.getCameras().then(devices => {
       if (!devices || devices.length === 0) {
-        showStatus("Hech qanday kamera topilmadi. Iltimos, kamera ulanaganligiga ishonch hosil qiling.", "error");
+        showStatus("Kamera topilmadi. Iltimos, kamera ulanaganligiga ishonch hosil qiling.", "error");
         return;
       }
       
@@ -406,7 +448,7 @@
         showStatus(`Kamera faollashtirildi: ${availableCameras[currentCameraIndex].label}`, "success");
       }).catch(err => {
         console.error("Kamerani ishga tushirishda xato:", err);
-        showStatus("Kameraga ulanish imkoni bo'lmadi. Iltimos, brauzer ruxsatlarini tekshiring.", "error");
+        showStatus("Kameraga ulanish imkoni bo'lmadi. Ruxsatlarni tekshiring.", "error");
         
         // Agar kameralar ko'p bo'lsa, boshqasini sinab ko'rish
         if (availableCameras.length > 1) {
@@ -433,14 +475,14 @@
       showStatus(`Kamera almashtirildi: ${availableCameras[currentCameraIndex].label}`, "success");
     }).catch(err => {
       console.error("Alternativ kamera ishga tushirishda xato:", err);
-      showStatus("Kameraga ulanish imkoni bo'lmadi. Iltimos, brauzer ruxsatlarini tekshiring.", "error");
+      showStatus("Kameraga ulanish imkoni bo'lmadi. Ruxsatlarni tekshiring.", "error");
     });
   }
   
   // Kamera almashtirish
   function switchCamera() {
     if (availableCameras.length < 2) {
-      showStatus("Kamera almashtirish uchun kamida 2 ta kamera bo'lishi kerak", "error");
+      showStatus("Kamera almashtirish uchun kamida 2 ta kamera kerak", "error");
       return;
     }
     
@@ -448,7 +490,7 @@
       html5QrCode.stop().then(() => {
         const config = { 
           fps: 10, 
-          qrbox: 250,
+          qrbox: 200,
           rememberLastUsedCamera: true,
           supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
         };
@@ -487,7 +529,27 @@
     fileInput.click();
   }
   
-  // Skaner muvaffaqiyatli bo'lganda (yaxshilangan versiya)
+  // Qo'lda kod kiritish
+  function manualBarcodeEntry() {
+    const modal = document.getElementById('barcode-modal');
+    modal.classList.remove('hidden');
+    document.getElementById('manual-barcode').value = '';
+    document.getElementById('manual-barcode').focus();
+  }
+  
+  // Qo'lda kiritilgan kodni qabul qilish
+  function submitManualBarcode() {
+    const barcode = document.getElementById('manual-barcode').value.trim();
+    if (!barcode) {
+      showStatus("Iltimos, kodni kiriting!", "error");
+      return;
+    }
+    
+    document.getElementById('barcode-modal').classList.add('hidden');
+    onScanSuccess(barcode);
+  }
+  
+  // Skaner muvaffaqiyatli bo'lganda
   function onScanSuccess(decodedText, decodedResult) {
     if (!decodedText || decodedText === barcodeDisplay.textContent) return;
     
@@ -510,7 +572,7 @@
     }, 1000);
   }
 
-  // Skaner xatosi (yaxshilangan versiya)
+  // Skaner xatosi
   function onScanError(errorMessage) {
     // Faqat muhim xatolarni ko'rsatish
     if (!errorMessage.includes("NotFoundException") && 
@@ -526,7 +588,6 @@
       1. Brauzer ruxsatlarini tekshiring
       2. Sayt uchun kamera ruxsatini yoqing
       3. Kameraning boshqa dasturda ishlatilmayotganligiga ishonch hosil qiling
-      4. Agar muammo davom etsa, brauzeringizni yangilang yoki boshqa brauzerdan urinib ko'ring
     `;
     showStatus(helpText, "error");
   }
@@ -560,11 +621,11 @@
     if (existingIndex >= 0) {
       // Agar mahsulot allaqachon mavjud bo'lsa, yangilash
       products[existingIndex] = { barcode, name, price };
-      showStatus(`Mahsulot muvaffaqiyatli yangilandi: ${name}`, "success");
+      showStatus(`Mahsulot yangilandi: ${name}`, "success");
     } else {
       // Yangi mahsulot qo'shish
       products.push({ barcode, name, price });
-      showStatus(`Yangi mahsulot qo'shildi: ${name}`, "success");
+      showStatus(`Yangi mahsulot: ${name}`, "success");
     }
     
     // Saqlash va yangilash
@@ -589,7 +650,7 @@
         <td>${product.barcode}</td>
         <td>${product.name}</td>
         <td>${product.price.toLocaleString()} so'm</td>
-        <td>
+        <td style="white-space: nowrap;">
           <button class="action-btn" onclick="editProduct('${product.barcode}')">✏️</button>
           <button class="action-btn delete-btn" onclick="deleteProduct('${product.barcode}')">🗑️</button>
         </td>
@@ -606,17 +667,17 @@
       document.getElementById('product-name').value = product.name;
       document.getElementById('product-price').value = product.price;
       document.getElementById('product-name').focus();
-      showStatus(`Mahsulot tahrirlanmoqda: ${product.name}`, "warning");
+      showStatus(`Tahrirlanmoqda: ${product.name}`, "warning");
     }
   }
   
   // Mahsulotni o'chirish
   function deleteProduct(barcode) {
-    if (confirm('Bu mahsulotni rostdan ham o\'chirmoqchimisiz?')) {
+    if (confirm('Bu mahsulotni o\'chirmoqchimisiz?')) {
       products = products.filter(p => p.barcode !== barcode);
       localStorage.setItem('products', JSON.stringify(products));
       updateProductList();
-      showStatus("Mahsulot muvaffaqiyatli o'chirildi", "success");
+      showStatus("Mahsulot o'chirildi", "success");
     }
   }
   
@@ -636,7 +697,7 @@
         <td>${product.barcode}</td>
         <td>${product.name}</td>
         <td>${product.price.toLocaleString()} so'm</td>
-        <td>
+        <td style="white-space: nowrap;">
           <button class="action-btn" onclick="editProduct('${product.barcode}')">✏️</button>
           <button class="action-btn delete-btn" onclick="deleteProduct('${product.barcode}')">🗑️</button>
         </td>
@@ -669,7 +730,7 @@
     
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCart();
-    showStatus(`Savatga qo'shildi: ${product.name}`, "success");
+    showStatus(`Savatga: ${product.name}`, "success");
   }
   
   // Savatni yangilash
@@ -687,7 +748,7 @@
       tr.innerHTML = `
         <td>${item.name}</td>
         <td>${item.price.toLocaleString()} so'm</td>
-        <td>
+        <td style="white-space: nowrap;">
           <button class="action-btn" onclick="updateQuantity(${index}, -1)">-</button>
           ${item.quantity}
           <button class="action-btn" onclick="updateQuantity(${index}, 1)">+</button>
@@ -720,17 +781,88 @@
     cart.splice(index, 1);
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCart();
-    showStatus("Mahsulot savatdan olib tashlandi", "success");
+    showStatus("Mahsulot olib tashlandi", "success");
   }
   
   // Savatni tozalash
   function clearCart() {
-    if (confirm('Savatdagi barcha mahsulotlarni o\'chirmoqchimisiz?')) {
+    if (confirm('Savatni tozalamoqchimisiz?')) {
       cart = [];
       localStorage.setItem('cart', JSON.stringify(cart));
       updateCart();
       showStatus("Savat tozalandi", "success");
     }
+  }
+  
+  // Chekni chop etish
+  function printReceipt() {
+    if (cart.length === 0) {
+      showStatus("Savat bo'sh. Chek yaratib bo'lmaydi", "error");
+      return;
+    }
+    
+    const printSection = document.getElementById('print-section');
+    printSection.innerHTML = '';
+    
+    // Chek tarkibi
+    let receiptHTML = `
+      <div style="max-width: 300px; margin: 0 auto; padding: 15px; font-family: Arial, sans-serif;">
+        <h2 style="text-align: center; margin: 0 0 10px 0; font-size: 18px;">sodiqjonMagazin</h2>
+        <p style="text-align: center; margin: 0 0 10px 0; font-size: 14px;">Savdo cheki</p>
+    `;
+    
+    const date = new Date();
+    receiptHTML += `
+      <p style="text-align: center; margin: 0 0 15px 0; font-size: 12px;">
+        ${date.toLocaleDateString()} ${date.toLocaleTimeString()}
+      </p>
+      <hr style="border: none; border-top: 1px dashed #ccc; margin: 10px 0;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px;">
+        <thead>
+          <tr>
+            <th style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee;">Mahsulot</th>
+            <th style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee;">Jami</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    let total = 0;
+    cart.forEach(item => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+      
+      receiptHTML += `
+        <tr>
+          <td style="padding: 3px 0;">
+            ${item.name} (${item.price.toLocaleString()} × ${item.quantity})
+          </td>
+          <td style="text-align: right; padding: 3px 0;">
+            ${itemTotal.toLocaleString()} so'm
+          </td>
+        </tr>
+      `;
+    });
+    
+    receiptHTML += `
+        </tbody>
+      </table>
+      <hr style="border: none; border-top: 1px dashed #ccc; margin: 10px 0;">
+      <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 14px;">
+        <span>Jami:</span>
+        <span>${total.toLocaleString()} so'm</span>
+      </div>
+      <hr style="border: none; border-top: 1px dashed #ccc; margin: 10px 0;">
+      <p style="text-align: center; font-size: 12px; margin: 15px 0 0 0;">Rahmat! Qayta kelibsiz!</p>
+    </div>
+    `;
+    
+    printSection.innerHTML = receiptHTML;
+    
+    // Chop etish
+    window.print();
+    
+    showStatus("Chek chop etish uchun tayyor", "success");
   }
   
   // PDF chek yaratish
@@ -741,75 +873,87 @@
     }
     
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let yPos = 20;
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [80, 200] // Kichik chek formati
+    });
+    
+    let yPos = 10;
     
     // Sarlavha
-    doc.setFontSize(18);
-    doc.text("sodiqjonMagazin", 105, yPos, { align: 'center' });
-    yPos += 10;
-    
     doc.setFontSize(12);
-    doc.text("Savdo cheki", 105, yPos, { align: 'center' });
-    yPos += 10;
-    
-    const date = new Date();
-    doc.text(`Sana: ${date.toLocaleDateString()}  Vaqt: ${date.toLocaleTimeString()}`, 105, yPos, { align: 'center' });
-    yPos += 15;
-    
-    // Mahsulotlar ro'yxati
-    doc.setFontSize(10);
-    doc.setDrawColor(200);
-    doc.line(10, yPos, 200, yPos);
+    doc.setFont(undefined, 'bold');
+    doc.text("sodiqjonMagazin", 40, yPos, { align: 'center' });
     yPos += 5;
     
-    doc.setFont(undefined, 'bold');
-    doc.text("Mahsulot", 15, yPos);
-    doc.text("Narxi", 120, yPos);
-    doc.text("Soni", 150, yPos);
-    doc.text("Jami", 180, yPos);
+    doc.setFontSize(10);
+    doc.text("Savdo cheki", 40, yPos, { align: 'center' });
+    yPos += 5;
+    
+    const date = new Date();
+    doc.text(`Sana: ${date.toLocaleDateString()}`, 40, yPos, { align: 'center' });
+    yPos += 4;
+    doc.text(`Vaqt: ${date.toLocaleTimeString()}`, 40, yPos, { align: 'center' });
     yPos += 8;
     
+    // Mahsulotlar ro'yxati
+    doc.setFontSize(8);
+    doc.setDrawColor(200);
+    doc.line(5, yPos, 75, yPos);
+    yPos += 3;
+    
+    doc.setFont(undefined, 'bold');
+    doc.text("Mahsulot", 5, yPos);
+    doc.text("Jami", 65, yPos, { align: 'right' });
+    yPos += 4;
+    
     doc.setFont(undefined, 'normal');
-    doc.line(10, yPos, 200, yPos);
-    yPos += 10;
+    doc.line(5, yPos, 75, yPos);
+    yPos += 5;
     
     let total = 0;
     cart.forEach(item => {
       const itemTotal = item.price * item.quantity;
       total += itemTotal;
       
-      doc.text(item.name, 15, yPos);
-      doc.text(item.price.toLocaleString() + " so'm", 120, yPos);
-      doc.text(item.quantity.toString(), 150, yPos);
-      doc.text(itemTotal.toLocaleString() + " so'm", 180, yPos);
-      yPos += 8;
+      // Mahsulot nomi (agar uzun bo'lsa, qatorlarga bo'lish)
+      const nameLines = doc.splitTextToSize(
+        `${item.name} (${item.price.toLocaleString()} × ${item.quantity})`, 
+        60
+      );
+      
+      doc.text(nameLines, 5, yPos);
+      doc.text(itemTotal.toLocaleString() + " so'm", 65, yPos, { align: 'right' });
+      
+      // Qator balandligini hisoblash
+      yPos += 4 * nameLines.length;
       
       // Agar sahifa tugasa, yangi sahifa qo'shish
-      if (yPos > 270) {
-        doc.addPage();
-        yPos = 20;
+      if (yPos > 180) {
+        doc.addPage([80, 200]);
+        yPos = 10;
       }
     });
     
     // Jami summa
-    yPos += 10;
-    doc.line(10, yPos, 200, yPos);
-    yPos += 10;
+    yPos += 5;
+    doc.line(5, yPos, 75, yPos);
+    yPos += 5;
     
     doc.setFont(undefined, 'bold');
-    doc.text("Jami:", 150, yPos);
-    doc.text(total.toLocaleString() + " so'm", 180, yPos);
-    yPos += 15;
+    doc.text("Jami:", 55, yPos);
+    doc.text(total.toLocaleString() + " so'm", 65, yPos, { align: 'right' });
+    yPos += 8;
     
     doc.setFont(undefined, 'normal');
-    doc.text("Rahmat!", 105, yPos, { align: 'center' });
-    yPos += 7;
-    doc.text("Qayta kelibsiz!", 105, yPos, { align: 'center' });
+    doc.text("Rahmat!", 40, yPos, { align: 'center' });
+    yPos += 4;
+    doc.text("Qayta kelibsiz!", 40, yPos, { align: 'center' });
     
     // PDFni yuklab olish
     doc.save(`chek_${date.getTime()}.pdf`);
-    showStatus("Chek muvaffaqiyatli yaratildi", "success");
+    showStatus("PDF chek yaratildi", "success");
   }
   
   // Status xabarini ko'rsatish
