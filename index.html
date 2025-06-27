@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>sodiqjonMagazin POS Tizimi</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #f5f5f5, #e0f2f1);
+      padding: 20px;
+      margin: 0;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+    section {
+      background: white;
+      padding: 25px;
+      margin: 20px auto;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      max-width: 900px;
+    }
+    input, button {
+      padding: 12px 15px;
+      width: 100%;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    input:focus {
+      border-color: #26a69a;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.2);
+    }
+    button {
+      background: #26a69a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #00897b;
+      transform: translateY(-2px);
+    }
+    #reader-container {
+      position: relative;
+      margin: 25px auto;
+      max-width: 800px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    #reader {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+    }
+    #scan-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      height: 280px;
+      border: 4px solid #26a69a;
+      border-radius: 12px;
+      pointer-events: none;
+      box-shadow: 0 0 0 10000px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+    #barcode-display {
+      display: block;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin: 20px 0;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border: 2px solid #26a69a;
+      font-family: monospace;
+      min-height: 60px;
+      transition: all 0.3s;
+    }
+    .mode-selector {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .mode-selector button {
+      width: 220px;
+      padding: 14px;
+      font-size: 17px;
+      border-radius: 10px;
+    }
+    .mode-selector button.active {
+      background: #00796b;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .product-info {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .product-info input {
+      flex: 1;
+    }
+    #product-list {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 20px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      background: #fafafa;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      padding: 14px;
+      border: 1px solid #e0e0e0;
+      text-align: center;
+    }
+    th {
+      background: #b2dfdb;
+      color: #004d40;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f5f5f5;
+    }
+    tr:hover {
+      background-color: #e0f2f1;
+    }
+    #total {
+      font-size: 24px;
+      font-weight: bold;
+      color: #004d40;
+      margin: 20px 0;
+      text-align: right;
+      padding: 15px;
+      background: #e0f7fa;
+      border-radius: 10px;
+    }
+    audio { display: none; }
+    .action-btn {
+      padding: 8px 12px;
+      width: auto;
+      margin: 0 5px;
+      font-size: 14px;
+      border-radius: 6px;
+    }
+    .delete-btn {
+      background: #e74c3c;
+    }
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+    .search-box {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .search-box input {
+      padding-left: 40px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+      background-repeat: no-repeat;
+      background-position: 12px center;
+    }
+    .status-message {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    .warning { background: #fff3cd; color: #856404; }
+    .camera-options {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .camera-options button {
+      width: auto;
+      padding: 8px 15px;
+      font-size: 14px;
+    }
+    @media (max-width: 768px) {
+      .product-info {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .mode-selector button {
+        width: 100%;
+      }
+      #reader-container {
+        margin: 15px 0;
+      }
+      #scan-overlay {
+        width: 250px;
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🛒 sodiqjonMagazin POS Tizimi</h1>
+
+<!-- Rejim tanlash -->
+<div class="mode-selector">
+  <button id="add-mode-btn" class="active" onclick="setMode('add')">➕ Mahsulot qo'shish</button>
+  <button id="sell-mode-btn" onclick="setMode('sell')">💰 Savdo qilish</button>
+</div>
+
+<!-- Asosiy ish maydoni -->
+<section>
+  <h2 id="mode-title">Mahsulot qo'shish</h2>
+  
+  <!-- Kamera sozlamalari -->
+  <div class="camera-options">
+    <button onclick="initScanner()">🔄 Kamera qayta yuklash</button>
+    <button onclick="switchCamera()">🔄 Kamera almashtirish</button>
+    <button onclick="startFileScanner()">📁 Fayldan skanerlash</button>
+  </div>
+  
+  <!-- Katta skaner maydoni -->
+  <div id="reader-container">
+    <div id="reader"></div>
+    <div id="scan-overlay"></div>
+  </div>
+  <div id="barcode-display">-</div>
+  <div id="status-message"></div>
+  
+  <!-- Mahsulot qo'shish maydonlari -->
+  <div id="add-fields">
+    <div class="product-info">
+      <input type="text" id="product-name" placeholder="Mahsulot nomi" autocomplete="off">
+      <input type="number" id="product-price" placeholder="Narxi (so'm)" autocomplete="off">
+    </div>
+    <button onclick="addProduct()">➕ Mahsulot qo'shish</button>
+    
+    <div class="search-box">
+      <input type="text" id="product-search" placeholder="Mahsulot qidirish..." oninput="searchProducts(this.value)">
+    </div>
+    
+    <h3>Ro'yxatdagi mahsulotlar:</h3>
+    <div id="product-list">
+      <table id="products-table">
+        <thead>
+          <tr><th>Kodi</th><th>Nomi</th><th>Narxi</th><th>Harakatlar</th></tr>
+        </thead>
+        <tbody id="products-body"></tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Savdo maydoni -->
+  <div id="sell-fields" style="display: none;">
+    <h3>Savatdagi mahsulotlar:</h3>
+    <table>
+      <thead>
+        <tr><th>Nomi</th><th>Narxi</th><th>Soni</th><th>Jami</th><th></th></tr>
+      </thead>
+      <tbody id="cart-body"></tbody>
+    </table>
+    <p id="total">Umumiy: 0 so'm</p>
+    <button onclick="generatePDF()">🧾 Chek chiqarish (PDF)</button>
+    <button onclick="clearCart()" style="background: #e74c3c; margin-top: 10px;">🔄 Savatni tozalash</button>
+  </div>
+</section>
+
+<audio id="beep-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
+
+<script>
+  // O'zgaruvchilar
+  let currentMode = 'add';
+  let products = JSON.parse(localStorage.getItem('products')) || [];
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let html5QrCode;
+  let availableCameras = [];
+  let currentCameraIndex = 0;
+  
+  // DOM elementlari
+  const modeTitle = document.getElementById('mode-title');
+  const addFields = document.getElementById('add-fields');
+  const sellFields = document.getElementById('sell-fields');
+  const barcodeDisplay = document.getElementById('barcode-display');
+  const statusMessage = document.getElementById('status-message');
+  const beepSound = document.getElementById('beep-sound');
+  
+  // Sahifa yuklanganda
+  document.addEventListener('DOMContentLoaded', function() {
+    updateProductList();
+    updateCart();
+    initScanner();
+  });
+  
+  // Rejimni o'zgartirish
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('add-mode-btn').classList.remove('active');
+    document.getElementById('sell-mode-btn').classList.remove('active');
+    
+    if (mode === 'add') {
+      modeTitle.textContent = 'Mahsulot qo\'shish';
+      addFields.style.display = 'block';
+      sellFields.style.display = 'none';
+      document.getElementById('add-mode-btn').classList.add('active');
+    } else {
+      modeTitle.textContent = 'Savdo qilish';
+      addFields.style.display = 'none';
+      sellFields.style.display = 'block';
+      document.getElementById('sell-mode-btn').classList.add('active');
+    }
+    
+    // Skanerni qayta ishga tushirish
+    restartScanner();
+  }
+  
+  // Skanerni qayta ishga tushirish
+  function restartScanner() {
+    if (html5QrCode && html5QrCode.isScanning) {
+      html5QrCode.stop().then(() => {
+        initScanner();
+      }).catch(err => {
+        console.error("Skanerni to'xtatishda xato:", err);
+        initScanner();
+      });
+    } else {
+      initScanner();
+    }
+  }
+  
+  // Skanerni ishga tushirish (yaxshilangan versiya)
+  function initScanner() {
+    const config = { 
+      fps: 10, 
+      qrbox: 250,
+      rememberLastUsedCamera: true,
+      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+    };
+    
+    // Avvalgi skanerni to'xtatish
+    if (html5QrCode && html5QrCode.isScanning) {
+      html5QrCode.stop().then(() => {
+        startCamera(config);
+      }).catch(err => {
+        console.error("Skanerni to'xtatishda xato:", err);
+        startCamera(config);
+      });
+    } else {
+      startCamera(config);
+    }
+  }
+  
+  // Kamerani ishga tushirish (alohida funksiya)
+  function startCamera(config) {
+    Html5Qrcode.getCameras().then(devices => {
+      if (!devices || devices.length === 0) {
+        showStatus("Hech qanday kamera topilmadi. Iltimos, kamera ulanaganligiga ishonch hosil qiling.", "error");
+        return;
+      }
+      
+      availableCameras = devices;
+      currentCameraIndex = 0;
+      
+      // Orqa kamera borligini tekshirish
+      const backCameraIndex = devices.findIndex(device => 
+        device.label.toLowerCase().includes('back') || 
+        device.label.toLowerCase().includes('rear')
+      );
+      
+      if (backCameraIndex !== -1) {
+        currentCameraIndex = backCameraIndex;
+      }
+      
+      html5QrCode = new Html5Qrcode("reader");
+      
+      html5QrCode.start(
+        availableCameras[currentCameraIndex].id, 
+        config,
+        onScanSuccess,
+        onScanError
+      ).then(() => {
+        console.log("Skaner muvaffaqiyatli ishga tushdi");
+        showStatus(`Kamera faollashtirildi: ${availableCameras[currentCameraIndex].label}`, "success");
+      }).catch(err => {
+        console.error("Kamerani ishga tushirishda xato:", err);
+        showStatus("Kameraga ulanish imkoni bo'lmadi. Iltimos, brauzer ruxsatlarini tekshiring.", "error");
+        
+        // Agar kameralar ko'p bo'lsa, boshqasini sinab ko'rish
+        if (availableCameras.length > 1) {
+          tryNextCamera(config);
+        }
+      });
+      
+    }).catch(err => {
+      console.error("Kamerani sozlashda xato:", err);
+      showCameraPermissionsHelp();
+    });
+  }
+  
+  // Keyingi kamerani sinab ko'rish
+  function tryNextCamera(config) {
+    currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+    
+    html5QrCode.start(
+      availableCameras[currentCameraIndex].id, 
+      config,
+      onScanSuccess,
+      onScanError
+    ).then(() => {
+      showStatus(`Kamera almashtirildi: ${availableCameras[currentCameraIndex].label}`, "success");
+    }).catch(err => {
+      console.error("Alternativ kamera ishga tushirishda xato:", err);
+      showStatus("Kameraga ulanish imkoni bo'lmadi. Iltimos, brauzer ruxsatlarini tekshiring.", "error");
+    });
+  }
+  
+  // Kamera almashtirish
+  function switchCamera() {
+    if (availableCameras.length < 2) {
+      showStatus("Kamera almashtirish uchun kamida 2 ta kamera bo'lishi kerak", "error");
+      return;
+    }
+    
+    if (html5QrCode && html5QrCode.isScanning) {
+      html5QrCode.stop().then(() => {
+        const config = { 
+          fps: 10, 
+          qrbox: 250,
+          rememberLastUsedCamera: true,
+          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+        };
+        tryNextCamera(config);
+      }).catch(err => {
+        console.error("Kamerani almashtirishda xato:", err);
+      });
+    }
+  }
+  
+  // Fayldan skanerlash
+  function startFileScanner() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    
+    fileInput.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+      }
+      
+      html5QrCode.scanFile(file, false)
+        .then(decodedText => {
+          onScanSuccess(decodedText);
+          showStatus("Fayldan kod muvaffaqiyatli o'qildi", "success");
+        })
+        .catch(err => {
+          showStatus("Rasmdan kod o'qib bo'lmadi", "error");
+          console.error("Fayldan skanerlashda xato:", err);
+        });
+    };
+    
+    fileInput.click();
+  }
+  
+  // Skaner muvaffaqiyatli bo'lganda (yaxshilangan versiya)
+  function onScanSuccess(decodedText, decodedResult) {
+    if (!decodedText || decodedText === barcodeDisplay.textContent) return;
+    
+    beepSound.play().catch(e => console.log("Ovozni ijro etishda xato:", e));
+    barcodeDisplay.textContent = decodedText;
+    
+    if (currentMode === 'add') {
+      document.getElementById('product-name').focus();
+    } else {
+      addToCart(decodedText);
+    }
+    
+    // 1 soniyadan keyin skanerni qayta ishga tushirish
+    setTimeout(() => {
+      if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.resume().catch(err => {
+          console.error("Skanerni qayta ishga tushirishda xato:", err);
+        });
+      }
+    }, 1000);
+  }
+
+  // Skaner xatosi (yaxshilangan versiya)
+  function onScanError(errorMessage) {
+    // Faqat muhim xatolarni ko'rsatish
+    if (!errorMessage.includes("NotFoundException") && 
+        !errorMessage.includes("No multiformat readers configured")) {
+      console.log("Skaner xatosi:", errorMessage);
+    }
+  }
+  
+  // Kameraga ruxsatlar haqida yordam ko'rsatish
+  function showCameraPermissionsHelp() {
+    const helpText = `
+      Kameraga kirish rad etildi. Iltimos:
+      1. Brauzer ruxsatlarini tekshiring
+      2. Sayt uchun kamera ruxsatini yoqing
+      3. Kameraning boshqa dasturda ishlatilmayotganligiga ishonch hosil qiling
+      4. Agar muammo davom etsa, brauzeringizni yangilang yoki boshqa brauzerdan urinib ko'ring
+    `;
+    showStatus(helpText, "error");
+  }
+
+  // Mahsulot qo'shish
+  function addProduct() {
+    const barcode = barcodeDisplay.textContent;
+    const name = document.getElementById('product-name').value.trim();
+    const price = parseFloat(document.getElementById('product-price').value);
+    
+    if (barcode === '-' || !barcode) {
+      showStatus("Iltimos, avval mahsulot shtrix kodini skanerlang!", "error");
+      return;
+    }
+    
+    if (!name) {
+      showStatus("Mahsulot nomini kiriting!", "error");
+      document.getElementById('product-name').focus();
+      return;
+    }
+    
+    if (isNaN(price)) {
+      showStatus("Narxni to'g'ri kiriting!", "error");
+      document.getElementById('product-price').focus();
+      return;
+    }
+    
+    // Mahsulotni qo'shish
+    const existingIndex = products.findIndex(p => p.barcode === barcode);
+    
+    if (existingIndex >= 0) {
+      // Agar mahsulot allaqachon mavjud bo'lsa, yangilash
+      products[existingIndex] = { barcode, name, price };
+      showStatus(`Mahsulot muvaffaqiyatli yangilandi: ${name}`, "success");
+    } else {
+      // Yangi mahsulot qo'shish
+      products.push({ barcode, name, price });
+      showStatus(`Yangi mahsulot qo'shildi: ${name}`, "success");
+    }
+    
+    // Saqlash va yangilash
+    localStorage.setItem('products', JSON.stringify(products));
+    updateProductList();
+    
+    // Maydonlarni tozalash
+    document.getElementById('product-name').value = '';
+    document.getElementById('product-price').value = '';
+    barcodeDisplay.textContent = '-';
+    document.getElementById('product-name').focus();
+  }
+  
+  // Mahsulotlar ro'yxatini yangilash
+  function updateProductList() {
+    const tbody = document.getElementById('products-body');
+    tbody.innerHTML = '';
+    
+    products.forEach(product => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${product.barcode}</td>
+        <td>${product.name}</td>
+        <td>${product.price.toLocaleString()} so'm</td>
+        <td>
+          <button class="action-btn" onclick="editProduct('${product.barcode}')">✏️</button>
+          <button class="action-btn delete-btn" onclick="deleteProduct('${product.barcode}')">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  
+  // Mahsulotni tahrirlash
+  function editProduct(barcode) {
+    const product = products.find(p => p.barcode === barcode);
+    if (product) {
+      barcodeDisplay.textContent = product.barcode;
+      document.getElementById('product-name').value = product.name;
+      document.getElementById('product-price').value = product.price;
+      document.getElementById('product-name').focus();
+      showStatus(`Mahsulot tahrirlanmoqda: ${product.name}`, "warning");
+    }
+  }
+  
+  // Mahsulotni o'chirish
+  function deleteProduct(barcode) {
+    if (confirm('Bu mahsulotni rostdan ham o\'chirmoqchimisiz?')) {
+      products = products.filter(p => p.barcode !== barcode);
+      localStorage.setItem('products', JSON.stringify(products));
+      updateProductList();
+      showStatus("Mahsulot muvaffaqiyatli o'chirildi", "success");
+    }
+  }
+  
+  // Mahsulotlarni qidirish
+  function searchProducts(query) {
+    const filtered = products.filter(p => 
+      p.name.toLowerCase().includes(query.toLowerCase()) || 
+      p.barcode.includes(query)
+    );
+    
+    const tbody = document.getElementById('products-body');
+    tbody.innerHTML = '';
+    
+    filtered.forEach(product => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${product.barcode}</td>
+        <td>${product.name}</td>
+        <td>${product.price.toLocaleString()} so'm</td>
+        <td>
+          <button class="action-btn" onclick="editProduct('${product.barcode}')">✏️</button>
+          <button class="action-btn delete-btn" onclick="deleteProduct('${product.barcode}')">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  
+  // Savatga qo'shish
+  function addToCart(barcode) {
+    const product = products.find(p => p.barcode === barcode);
+    
+    if (!product) {
+      showStatus(`Ushbu kodli mahsulot topilmadi (${barcode})`, "error");
+      return;
+    }
+    
+    const existingItem = cart.find(item => item.barcode === barcode);
+    
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      cart.push({
+        barcode: product.barcode,
+        name: product.name,
+        price: product.price,
+        quantity: 1
+      });
+    }
+    
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCart();
+    showStatus(`Savatga qo'shildi: ${product.name}`, "success");
+  }
+  
+  // Savatni yangilash
+  function updateCart() {
+    const tbody = document.getElementById('cart-body');
+    tbody.innerHTML = '';
+    
+    let total = 0;
+    
+    cart.forEach((item, index) => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+      
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.price.toLocaleString()} so'm</td>
+        <td>
+          <button class="action-btn" onclick="updateQuantity(${index}, -1)">-</button>
+          ${item.quantity}
+          <button class="action-btn" onclick="updateQuantity(${index}, 1)">+</button>
+        </td>
+        <td>${itemTotal.toLocaleString()} so'm</td>
+        <td><button class="action-btn delete-btn" onclick="removeFromCart(${index})">🗑️</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    
+    document.getElementById('total').textContent = `Umumiy: ${total.toLocaleString()} so'm`;
+  }
+  
+  // Miqdorni yangilash
+  function updateQuantity(index, change) {
+    const newQuantity = cart[index].quantity + change;
+    
+    if (newQuantity < 1) {
+      removeFromCart(index);
+      return;
+    }
+    
+    cart[index].quantity = newQuantity;
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCart();
+  }
+  
+  // Savatdan o'chirish
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCart();
+    showStatus("Mahsulot savatdan olib tashlandi", "success");
+  }
+  
+  // Savatni tozalash
+  function clearCart() {
+    if (confirm('Savatdagi barcha mahsulotlarni o\'chirmoqchimisiz?')) {
+      cart = [];
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCart();
+      showStatus("Savat tozalandi", "success");
+    }
+  }
+  
+  // PDF chek yaratish
+  function generatePDF() {
+    if (cart.length === 0) {
+      showStatus("Savat bo'sh. Chek yaratib bo'lmaydi", "error");
+      return;
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let yPos = 20;
+    
+    // Sarlavha
+    doc.setFontSize(18);
+    doc.text("sodiqjonMagazin", 105, yPos, { align: 'center' });
+    yPos += 10;
+    
+    doc.setFontSize(12);
+    doc.text("Savdo cheki", 105, yPos, { align: 'center' });
+    yPos += 10;
+    
+    const date = new Date();
+    doc.text(`Sana: ${date.toLocaleDateString()}  Vaqt: ${date.toLocaleTimeString()}`, 105, yPos, { align: 'center' });
+    yPos += 15;
+    
+    // Mahsulotlar ro'yxati
+    doc.setFontSize(10);
+    doc.setDrawColor(200);
+    doc.line(10, yPos, 200, yPos);
+    yPos += 5;
+    
+    doc.setFont(undefined, 'bold');
+    doc.text("Mahsulot", 15, yPos);
+    doc.text("Narxi", 120, yPos);
+    doc.text("Soni", 150, yPos);
+    doc.text("Jami", 180, yPos);
+    yPos += 8;
+    
+    doc.setFont(undefined, 'normal');
+    doc.line(10, yPos, 200, yPos);
+    yPos += 10;
+    
+    let total = 0;
+    cart.forEach(item => {
+      const itemTotal = item.price * item.quantity;
+      total += itemTotal;
+      
+      doc.text(item.name, 15, yPos);
+      doc.text(item.price.toLocaleString() + " so'm", 120, yPos);
+      doc.text(item.quantity.toString(), 150, yPos);
+      doc.text(itemTotal.toLocaleString() + " so'm", 180, yPos);
+      yPos += 8;
+      
+      // Agar sahifa tugasa, yangi sahifa qo'shish
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+    });
+    
+    // Jami summa
+    yPos += 10;
+    doc.line(10, yPos, 200, yPos);
+    yPos += 10;
+    
+    doc.setFont(undefined, 'bold');
+    doc.text("Jami:", 150, yPos);
+    doc.text(total.toLocaleString() + " so'm", 180, yPos);
+    yPos += 15;
+    
+    doc.setFont(undefined, 'normal');
+    doc.text("Rahmat!", 105, yPos, { align: 'center' });
+    yPos += 7;
+    doc.text("Qayta kelibsiz!", 105, yPos, { align: 'center' });
+    
+    // PDFni yuklab olish
+    doc.save(`chek_${date.getTime()}.pdf`);
+    showStatus("Chek muvaffaqiyatli yaratildi", "success");
+  }
+  
+  // Status xabarini ko'rsatish
+  function showStatus(message, type) {
+    statusMessage.textContent = message;
+    statusMessage.className = `status-message ${type}`;
+    
+    // 5 soniyadan keyin xabarni yashirish
+    setTimeout(() => {
+      statusMessage.textContent = '';
+      statusMessage.className = 'status-message';
+    }, 5000);
+  }
+</script>
+</body>
+</html>
