@@ -18,12 +18,13 @@
       margin: 0;
       color: #333;
       touch-action: manipulation;
+      font-size: 16px;
     }
     h1 {
       text-align: center;
       color: #2c3e50;
       margin: 10px 0;
-      font-size: clamp(18px, 5vw, 22px);
+      font-size: clamp(20px, 5vw, 24px);
     }
     section {
       background: white;
@@ -31,8 +32,8 @@
       margin: 10px auto;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      max-width: 100%;
-      width: clamp(300px, 90%, 800px);
+      max-width: 1200px;
+      width: 100%;
     }
     input, button {
       padding: 12px 15px;
@@ -73,7 +74,7 @@
     }
     #reader {
       width: 100%;
-      height: 300px;
+      height: clamp(250px, 50vw, 300px);
       object-fit: cover;
     }
     #scan-overlay {
@@ -90,9 +91,8 @@
       z-index: 10;
     }
     #barcode-display {
-      display: block;
       text-align: center;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       margin: 15px 0;
       padding: 10px;
@@ -121,8 +121,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .product-info {
-      display: flex;
-      flex-direction: column;
+      display: grid;
       gap: 8px;
       margin-bottom: 10px;
     }
@@ -159,7 +158,7 @@
       background-color: #e0f2f1;
     }
     #total {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       color: #004d40;
       margin: 15px 0;
@@ -211,32 +210,25 @@
       margin-bottom: 12px;
     }
     .camera-options button {
-      width: clamp(80px, calc(25% - 6px), 120px);
+      width: clamp(80px, calc(25% - 6px), 100px);
       padding: 8px;
       font-size: 13px;
     }
     .hidden {
       display: none !important;
     }
-    /* Responsive Design */
     @media (max-width: 600px) {
-      h1 { font-size: 18px; }
       section { padding: 10px; }
+      h1 { font-size: 20px; }
       input, button { font-size: 14px; padding: 10px; }
-      .mode-selector button { font-size: 13px; }
-      .camera-options button { font-size: 12px; }
       table { font-size: 12px; }
       th, td { padding: 8px; }
-      #reader { height: 250px; }
-      #scan-overlay { width: 180px; height: 180px; }
+      .mode-selector button { font-size: 14px; padding: 10px; }
+      .camera-options button { font-size: 12px; }
     }
     @media print {
-      body * {
-        visibility: hidden;
-      }
-      #print-section, #print-section * {
-        visibility: visible;
-      }
+      body * { visibility: hidden; }
+      #print-section, #print-section * { visibility: visible; }
       #print-section {
         position: absolute;
         left: 0;
@@ -250,17 +242,14 @@
 
 <h1>🛒 sodiqjonMagazin POS Tizimi</h1>
 
-<!-- Rejim tanlash -->
 <div class="mode-selector">
   <button id="add-mode-btn" class="active" onclick="setMode('add')">➕ Qo'shish</button>
   <button id="sell-mode-btn" onclick="setMode('sell')">💰 Savdo</button>
 </div>
 
-<!-- Asosiy ish maydoni -->
 <section>
   <h2 id="mode-title">Mahsulot qo'shish</h2>
   
-  <!-- Kamera sozlamalari -->
   <div class="camera-options">
     <button onclick="initScanner()">🔄 Kamera</button>
     <button onclick="switchCamera()">🔄 Almash</button>
@@ -268,7 +257,6 @@
     <button onclick="manualBarcodeEntry()">⌨️ Kod kirish</button>
   </div>
   
-  <!-- Katta skaner maydoni -->
   <div id="reader-container">
     <div id="reader"></div>
     <div id="scan-overlay"></div>
@@ -276,13 +264,12 @@
   <div id="barcode-display">-</div>
   <div id="status-message"></div>
   
-  <!-- Mahsulot qo'shish maydonlari -->
   <div id="add-fields">
     <div class="product-info">
       <input type="text" id="product-name" placeholder="Mahsulot nomi" autocomplete="off">
-      <input type="number" id="product-price" placeholder="Narxi (so'm)" inputmode="numeric" autocomplete="off">
-      <input type="number" id="product-quantity" placeholder="Skladdagi soni" inputmode="numeric" min="0" autocomplete="off">
-      <textarea id="product-description" placeholder="Mahsulot haqida ma'lumot" rows="3"></textarea>
+      <input type="number" id="product-price" placeholder="Narxi (so'm)" autocomplete="off">
+      <input type="number" id="product-quantity" placeholder="Ombordagi soni" autocomplete="off">
+      <textarea id="product-details" placeholder="Mahsulot haqida ma'lumot" style="resize: vertical; min-height: 80px;"></textarea>
     </div>
     <button onclick="addProduct()">➕ Mahsulot qo'shish</button>
     
@@ -294,14 +281,13 @@
     <div id="product-list">
       <table id="products-table">
         <thead>
-          <tr><th>Kodi</th><th>Nomi</th><th>Narxi</th><th>Soni</th><th>Tavsif</th><th></th></tr>
+          <tr><th>Kodi</th><th>Nomi</th><th>Narxi</th><th>Soni</th><th>Ma'lumot</th><th></th></tr>
         </thead>
         <tbody id="products-body"></tbody>
       </table>
     </div>
   </div>
   
-  <!-- Savdo maydoni -->
   <div id="sell-fields" class="hidden">
     <h3>Savatdagi mahsulotlar:</h3>
     <table>
@@ -311,19 +297,17 @@
       <tbody id="cart-body"></tbody>
     </table>
     <p id="total">Umumiy: 0 so'm</p>
-    <button onclick="printReceipt()">🧾 Chek chiqarish</button>
-    <button onclick="generatePDF()">📄 PDF saqlash</button>
-    <button onclick="closeSale()" style="background: #ff9800; margin-top: 8px;">🔒 Sotishni yopish</button>
+    <button onclick="closeSale()">✅ Sotuvni yopish</button>
+    <button onclick="printReceipt()" style="margin-top: 8px;">🧾 Chek chiqarish</button>
+    <button onclick="generatePDF()" style="margin-top: 8px;">📄 PDF saqlash</button>
     <button onclick="clearCart()" style="background: #e74c3c; margin-top: 8px;">🔄 Savatni tozalash</button>
   </div>
 </section>
 
-<!-- Chek chop etish uchun yashirin div -->
 <div id="print-section" class="hidden"></div>
 
 <audio id="beep-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
 
-<!-- Qo'lda kod kiritish uchun modal -->
 <div id="barcode-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; display: flex; justify-content: center; align-items: center;">
   <div style="background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px;">
     <h3 style="margin-top: 0;">Shtrix kodni kiriting</h3>
@@ -336,7 +320,6 @@
 </div>
 
 <script>
-  // O'zgaruvchilar
   let currentMode = 'add';
   let products = JSON.parse(localStorage.getItem('products')) || [];
   let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -344,7 +327,6 @@
   let availableCameras = [];
   let currentCameraIndex = 0;
   
-  // DOM elementlari
   const modeTitle = document.getElementById('mode-title');
   const addFields = document.getElementById('add-fields');
   const sellFields = document.getElementById('sell-fields');
@@ -352,12 +334,12 @@
   const statusMessage = document.getElementById('status-message');
   const beepSound = document.getElementById('beep-sound');
   
-  // Sahifa yuklanganda
   document.addEventListener('DOMContentLoaded', function() {
     updateProductList();
     updateCart();
     initScanner();
     document.getElementById('product-name').focus();
+    
     document.addEventListener('keydown', function(e) {
       if (e.key === 'F2' || (e.ctrlKey && e.key === 'k')) {
         e.preventDefault();
@@ -366,7 +348,6 @@
     });
   });
   
-  // Rejimni o'zgartirish
   function setMode(mode) {
     currentMode = mode;
     document.getElementById('add-mode-btn').classList.remove('active');
@@ -388,7 +369,6 @@
     restartScanner();
   }
   
-  // Skanerni qayta ishga tushirish
   function restartScanner() {
     if (html5QrCode && html5QrCode.isScanning) {
       html5QrCode.stop().then(() => {
@@ -402,7 +382,6 @@
     }
   }
   
-  // Skanerni ishga tushirish
   function initScanner() {
     const config = { 
       fps: 10, 
@@ -423,7 +402,6 @@
     }
   }
   
-  // Kamerani ishga tushirish
   function startCamera(config) {
     Html5Qrcode.getCameras().then(devices => {
       if (!devices || devices.length === 0) {
@@ -451,6 +429,7 @@
         onScanSuccess,
         onScanError
       ).then(() => {
+        console.log("Skaner muvaffaqiyatli ishga tushdi");
         showStatus(`Kamera faollashtirildi: ${availableCameras[currentCameraIndex].label}`, "success");
       }).catch(err => {
         console.error("Kamerani ishga tushirishda xato:", err);
@@ -466,7 +445,6 @@
     });
   }
   
-  // Keyingi kamerani sinab ko'rish
   function tryNextCamera(config) {
     currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
     
@@ -483,7 +461,6 @@
     });
   }
   
-  // Kamera almashtirish
   function switchCamera() {
     if (availableCameras.length < 2) {
       showStatus("Kamera almashtirish uchun kamida 2 ta kamera kerak", "error");
@@ -505,7 +482,6 @@
     }
   }
   
-  // Fayldan skanerlash
   function startFileScanner() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -533,7 +509,6 @@
     fileInput.click();
   }
   
-  // Qo'lda kod kiritish
   function manualBarcodeEntry() {
     const modal = document.getElementById('barcode-modal');
     modal.classList.remove('hidden');
@@ -541,7 +516,6 @@
     document.getElementById('manual-barcode').focus();
   }
   
-  // Qo'lda kiritilgan kodni qabul qilish
   function submitManualBarcode() {
     const barcode = document.getElementById('manual-barcode').value.trim();
     if (!barcode) {
@@ -553,7 +527,6 @@
     onScanSuccess(barcode);
   }
   
-  // Skaner muvaffaqiyatli bo'lganda
   function onScanSuccess(decodedText, decodedResult) {
     if (!decodedText || decodedText === barcodeDisplay.textContent) return;
     
@@ -574,8 +547,7 @@
       }
     }, 1000);
   }
-
-  // Skaner xatosi
+  
   function onScanError(errorMessage) {
     if (!errorMessage.includes("NotFoundException") && 
         !errorMessage.includes("No multiformat readers configured")) {
@@ -583,7 +555,6 @@
     }
   }
   
-  // Kameraga ruxsatlar haqida yordam ko'rsatish
   function showCameraPermissionsHelp() {
     const helpText = `
       Kameraga kirish rad etildi. Iltimos:
@@ -594,13 +565,12 @@
     showStatus(helpText, "error");
   }
 
-  // Mahsulot qo'shish
   function addProduct() {
     const barcode = barcodeDisplay.textContent;
     const name = document.getElementById('product-name').value.trim();
     const price = parseFloat(document.getElementById('product-price').value);
     const quantity = parseInt(document.getElementById('product-quantity').value) || 0;
-    const description = document.getElementById('product-description').value.trim();
+    const details = document.getElementById('product-details').value.trim();
     
     if (barcode === '-' || !barcode) {
       showStatus("Iltimos, avval mahsulot shtrix kodini skanerlang!", "error");
@@ -619,19 +589,13 @@
       return;
     }
     
-    if (isNaN(quantity) || quantity < 0) {
-      showStatus("Soni to'g'ri kiriting!", "error");
-      document.getElementById('product-quantity').focus();
-      return;
-    }
-    
     const existingIndex = products.findIndex(p => p.barcode === barcode);
     
     if (existingIndex >= 0) {
-      products[existingIndex] = { barcode, name, price, quantity, description };
+      products[existingIndex] = { barcode, name, price, quantity, details };
       showStatus(`Mahsulot yangilandi: ${name}`, "success");
     } else {
-      products.push({ barcode, name, price, quantity, description });
+      products.push({ barcode, name, price, quantity, details });
       showStatus(`Yangi mahsulot: ${name}`, "success");
     }
     
@@ -641,12 +605,11 @@
     document.getElementById('product-name').value = '';
     document.getElementById('product-price').value = '';
     document.getElementById('product-quantity').value = '';
-    document.getElementById('product-description').value = '';
+    document.getElementById('product-details').value = '';
     barcodeDisplay.textContent = '-';
     document.getElementById('product-name').focus();
   }
   
-  // Mahsulotlar ro'yxatini yangilash
   function updateProductList() {
     const tbody = document.getElementById('products-body');
     tbody.innerHTML = '';
@@ -658,7 +621,7 @@
         <td>${product.name}</td>
         <td>${product.price.toLocaleString()} so'm</td>
         <td>${product.quantity}</td>
-        <td>${product.description || '-'}</td>
+        <td>${product.details || '-'}</td>
         <td style="white-space: nowrap;">
           <button class="action-btn" onclick="editProduct('${product.barcode}')">✏️</button>
           <button class="action-btn delete-btn" onclick="deleteProduct('${product.barcode}')">🗑️</button>
@@ -668,7 +631,6 @@
     });
   }
   
-  // Mahsulotni tahrirlash
   function editProduct(barcode) {
     const product = products.find(p => p.barcode === barcode);
     if (product) {
@@ -676,13 +638,12 @@
       document.getElementById('product-name').value = product.name;
       document.getElementById('product-price').value = product.price;
       document.getElementById('product-quantity').value = product.quantity;
-      document.getElementById('product-description').value = product.description || '';
+      document.getElementById('product-details').value = product.details || '';
       document.getElementById('product-name').focus();
       showStatus(`Tahrirlanmoqda: ${product.name}`, "warning");
     }
   }
   
-  // Mahsulotni o'chirish
   function deleteProduct(barcode) {
     if (confirm('Bu mahsulotni o\'chirmoqchimisiz?')) {
       products = products.filter(p => p.barcode !== barcode);
@@ -692,12 +653,11 @@
     }
   }
   
-  // Mahsulotlarni qidirish
   function searchProducts(query) {
     const filtered = products.filter(p => 
       p.name.toLowerCase().includes(query.toLowerCase()) || 
       p.barcode.includes(query) ||
-      (p.description && p.description.toLowerCase().includes(query.toLowerCase()))
+      (p.details && p.details.toLowerCase().includes(query.toLowerCase()))
     );
     
     const tbody = document.getElementById('products-body');
@@ -710,7 +670,7 @@
         <td>${product.name}</td>
         <td>${product.price.toLocaleString()} so'm</td>
         <td>${product.quantity}</td>
-        <td>${product.description || '-'}</td>
+        <td>${product.details || '-'}</td>
         <td style="white-space: nowrap;">
           <button class="action-btn" onclick="editProduct('${product.barcode}')">✏️</button>
           <button class="action-btn delete-btn" onclick="deleteProduct('${product.barcode}')">🗑️</button>
@@ -720,7 +680,6 @@
     });
   }
   
-  // Savatga qo'shish
   function addToCart(barcode) {
     const product = products.find(p => p.barcode === barcode);
     
@@ -730,7 +689,7 @@
     }
     
     if (product.quantity <= 0) {
-      showStatus(`Bu mahsulot skladda mavjud emas: ${product.name}`, "error");
+      showStatus(`Mahsulot (${product.name}) omborda mavjud emas!`, "error");
       return;
     }
     
@@ -738,7 +697,7 @@
     
     if (existingItem) {
       if (existingItem.quantity + 1 > product.quantity) {
-        showStatus(`Skladda yetarli mahsulot yo'q: ${product.name}`, "error");
+        showStatus(`Omborda faqat ${product.quantity} ta ${product.name} mavjud!`, "error");
         return;
       }
       existingItem.quantity += 1;
@@ -748,16 +707,15 @@
         name: product.name,
         price: product.price,
         quantity: 1,
-        description: product.description
+        details: product.details
       });
     }
     
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCart();
-    showStatus(`Savatga: ${product.name}`, "success");
+    showStatus(`Savatga qo'shildi: ${product.name} (Soni: ${existingItem ? existingItem.quantity : 1})`, "success");
   }
   
-  // Savatni yangilash
   function updateCart() {
     const tbody = document.getElementById('cart-body');
     tbody.innerHTML = '';
@@ -786,7 +744,6 @@
     document.getElementById('total').textContent = `Umumiy: ${total.toLocaleString()} so'm`;
   }
   
-  // Miqdorni yangilash
   function updateQuantity(index, change) {
     const newQuantity = cart[index].quantity + change;
     const product = products.find(p => p.barcode === cart[index].barcode);
@@ -797,7 +754,7 @@
     }
     
     if (newQuantity > product.quantity) {
-      showStatus(`Skladda yetarli mahsulot yo'q: ${product.name}`, "error");
+      showStatus(`Omborda faqat ${product.quantity} ta ${product.name} mavjud!`, "error");
       return;
     }
     
@@ -806,7 +763,6 @@
     updateCart();
   }
   
-  // Savatdan o'chirish
   function removeFromCart(index) {
     cart.splice(index, 1);
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -814,7 +770,6 @@
     showStatus("Mahsulot olib tashlandi", "success");
   }
   
-  // Savatni tozalash
   function clearCart() {
     if (confirm('Savatni tozalamoqchimisiz?')) {
       cart = [];
@@ -824,20 +779,13 @@
     }
   }
   
-  // Sotishni yopish
   function closeSale() {
     if (cart.length === 0) {
-      showStatus("Savat bo'sh. Sotishni yopib bo'lmaydi", "error");
+      showStatus("Savat bo'sh. Sotuvni yopib bo'lmaydi", "error");
       return;
     }
     
-    if (confirm('Sotishni yopmoqchimisiz?')) {
-      const wantPDF = confirm('Chekni PDF sifatida saqlamoqchimisiz?');
-      if (wantPDF) {
-        generatePDF();
-      }
-      
-      // Skladdagi mahsulotlar sonini yangilash
+    if (confirm('Sotuvni yopish va chek chiqarishni xohlaysizmi?')) {
       cart.forEach(item => {
         const product = products.find(p => p.barcode === item.barcode);
         if (product) {
@@ -845,16 +793,18 @@
         }
       });
       
-      cart = [];
       localStorage.setItem('products', JSON.stringify(products));
+      printReceipt();
+      generatePDF();
+      
+      cart = [];
       localStorage.setItem('cart', JSON.stringify(cart));
-      updateProductList();
       updateCart();
-      showStatus("Sotuv yopildi. Yangi mijoz uchun tayyor", "success");
+      updateProductList();
+      showStatus("Sotuv muvaffaqiyatli yopildi", "success");
     }
   }
   
-  // Chekni chop etish
   function printReceipt() {
     if (cart.length === 0) {
       showStatus("Savat bo'sh. Chek yaratib bo'lmaydi", "error");
@@ -921,14 +871,11 @@
     showStatus("Chek chop etish uchun tayyor", "success");
   }
   
-  // PDF chek yaratish
   function generatePDF() {
     if (cart.length === 0) {
       showStatus("Savat bo'sh. Chek yaratib bo'lmaydi", "error");
       return;
     }
-    
-    showStatus("PDF yaratilmoqda...", "warning");
     
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
@@ -980,7 +927,6 @@
       
       doc.text(nameLines, 5, yPos);
       doc.text(itemTotal.toLocaleString() + " so'm", 65, yPos, { align: 'right' });
-      
       yPos += 4 * nameLines.length;
       
       if (yPos > 180) {
@@ -1007,11 +953,9 @@
     showStatus("PDF chek yaratildi", "success");
   }
   
-  // Status xabarini ko'rsatish
   function showStatus(message, type) {
     statusMessage.textContent = message;
     statusMessage.className = `status-message ${type}`;
-    
     setTimeout(() => {
       statusMessage.textContent = '';
       statusMessage.className = 'status-message';
